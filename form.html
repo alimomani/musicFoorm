@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>نموذج تقييم مدرب / معلم موسيقى</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    body {
+      font-family: 'Tahoma', sans-serif;
+      padding: 20px;
+      direction: rtl;
+    }
+    table, th, td {
+      border: 1px solid black;
+      border-collapse: collapse;
+      padding: 10px;
+      text-align: right;
+    }
+    h2, h3, p {
+      text-align: center;
+    }
+    input, textarea {
+      width: 90%;
+      padding: 8px;
+      text-align: right;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    .label {
+      display: inline-block;
+      margin-left: 10px;
+      font-weight: bold;
+      font-size: 16px;
+    }
+    button {
+      padding: 12px 24px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 20px auto;
+      display: block;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #formArea {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      border: 1px solid #eee;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+      direction: rtl;
+    }
+    .print-value {
+      display: inline-block;
+      min-width: 150px;
+      border-bottom: 1px solid #000;
+      padding: 5px;
+      margin-right: 5px;
+      font-size: 16px;
+    }
+    #hiddenContainer {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div id="formArea">
+  <h3>بسم الله الرحمن الرحيم</h3>
+  <h2 >نموذج تقييم مدرب / معلم موسيقى</h2>
+  <p>تم تقييم المذكور أدناه من خلال عمله في دورة الموسيقى التأسيسية رقم ١٢</p>
+
+  <table style="width:100%; margin:20px 0;">
+    <tr>
+      <td>
+        <span class="label">الرقم </span>
+        <input type="text" id="number" />
+      </td>
+      <td>
+        <span class="label">الرتبة </span>
+        <input type="text" id="rank" />
+      </td>
+      <td>
+        <span class="label">الاسم </span>
+        <input type="text" id="name" />
+      </td>
+    </tr>
+  </table>
+
+  <table style="width:100%; margin-bottom:20px;">
+    <tr>
+      <th>المستوى النظري</th>
+      <th>المستوى العملي</th>
+      <th>الأخلاق</th>
+      <th>قوة الشخصية</th>
+    </tr>
+    <tr>
+      <td><input type="text" id="theory" /></td>
+      <td><input type="text" id="practical" /></td>
+      <td><input type="text" id="ethics" /></td>
+      <td><input type="text" id="personality" /></td>
+    </tr>
+  </table>
+
+  <p style="text-align: right; margin-bottom: 5px;">ملاحظات :</p>
+  <textarea rows="4" id="notes" style="width: 100%; font-size:16px;"></textarea>
+
+  <table style="width:100%; margin-top:30px;">
+    <tr>
+      <td style="text-align:center; width:33%; font-size: 16px;">
+        كبير المعلمين<br />ملازم<br />خالد علي المومنـي
+      </td>
+      <td style="text-align:center; width:34%; font-size: 18px; font-weight: bold;">
+        يعتمد
+      </td>
+      <td style="text-align:center; width:33%; font-size: 16px;">
+        المقدم /<br />قائد كتيبة موسيقى القوات المسلحة<br />عيسى ربيعه حمد العجلان الكعبي
+      </td>
+    </tr>
+  </table>
+</div>
+
+<button onclick="generatePDF()">📥 تحميل PDF</button>
+
+<div id="hiddenContainer"></div>
+
+<script>
+function generatePDF() {
+  const formElement = document.getElementById('formArea');
+  const pdfElement = formElement.cloneNode(true);
+
+  // استبدال الحقول النصية بالقيم
+  pdfElement.querySelectorAll('input').forEach(input => {
+    const parent = input.parentNode;
+    const label = parent.querySelector('.label');
+    const value = input.value.trim() || '';
+    const span = document.createElement('span');
+    span.className = 'print-value';
+    span.textContent = value;
+    parent.replaceChild(span, input);
+  });
+
+  // استبدال TextArea
+  pdfElement.querySelectorAll('textarea').forEach(textarea => {
+    const value = textarea.value.trim() || '';
+    const div = document.createElement('div');
+    div.className = 'print-value';
+    div.style.whiteSpace = 'pre-wrap';
+    div.style.width = '100%';
+    div.textContent = value;
+    textarea.parentNode.replaceChild(div, textarea);
+  });
+
+  // إضافة النموذج المؤقت للـ DOM
+  const container = document.getElementById('hiddenContainer');
+  container.innerHTML = '';
+  container.appendChild(pdfElement);
+  container.style.display = 'block';
+
+  // إعدادات PDF
+  const opt = {
+    margin: 10,
+    filename: 'نموذج_تقييم_مدرب_موسيقى.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
+
+  // إنشاء PDF
+  html2pdf()
+    .set(opt)
+    .from(pdfElement)
+    .save()
+    .then(() => {
+      container.innerHTML = '';
+      container.style.display = 'none';
+    });
+}
+</script>
+
+</body>
+</html>
